@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import '../styles/auth.css';
 import { API_URL } from '../config/api';
 
@@ -8,6 +9,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,7 +23,8 @@ const Register = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        navigate('/verify-email', { state: { email } });
+        login(data);
+        navigate('/');
       } else {
         alert(data.message);
       }

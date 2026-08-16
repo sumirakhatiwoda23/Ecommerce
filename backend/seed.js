@@ -154,8 +154,7 @@ const importData = async () => {
       name: 'Admin User',
       email: 'admin@shopnest.com',
       password: hashedPassword,
-      role: 'admin',
-      isVerified: true
+      role: 'admin'
     });
 
     const products = generateProducts();

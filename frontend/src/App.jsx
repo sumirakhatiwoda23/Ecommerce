@@ -21,7 +21,6 @@ import AdminProducts from './admin/AdminProducts';
 import EditProduct from './admin/EditProduct';
 import AdminOrders from './admin/AdminOrders';
 import AdminUsers from './admin/AdminUsers';
-import VerifyEmail from './pages/VerifyEmail';
 
 function App() {
   return (
@@ -48,7 +47,6 @@ function App() {
           <Route path="/admin/edit-product/:id" element={<EditProduct />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </div>
       <Footer />

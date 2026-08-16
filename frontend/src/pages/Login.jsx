@@ -24,8 +24,6 @@ const Login = () => {
       if (res.ok) {
         login(data);
         navigate('/');
-      } else if (data.unverified) {
-        navigate('/verify-email', { state: { email: data.email } });
       } else {
         alert(data.message);
       }
