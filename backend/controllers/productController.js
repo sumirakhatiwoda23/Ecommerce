@@ -3,8 +3,36 @@ import cloudinary from '../config/cloudinary.js';
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
-    res.json(products);
+    const { category, keyword } = req.query;
+
+    const filter = {};
+    if (category && category !== 'All') {
+      filter.category = category;
+    }
+    if (keyword) {
+      filter.name = { $regex: keyword, $options: 'i' };
+    }
+
+    // Pagination: defaults to page 1, 10 products per page.
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.max(Number(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const categories = await Product.distinct('category');
+
+    res.json({
+      products,
+      page,
+      pages: Math.ceil(total / limit) || 1,
+      total,
+      categories
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
