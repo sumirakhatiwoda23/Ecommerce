@@ -13,13 +13,11 @@ const Home = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        // First call just to discover the list of categories.
         const res = await fetch('/api/products?limit=1');
         const data = await res.json();
         const cats = data.categories || [];
         setCategories(cats);
 
-        // Then fetch a handful of products for each category in parallel.
         const results = await Promise.all(
           cats.map(async (cat) => {
             const catRes = await fetch(
@@ -47,10 +45,10 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <div className="hero-banner">
-        <h1>Welcome to ShopNest</h1>
-        <p>Discover the best products at unbeatable prices.</p>
-      </div>
+     <div className="hero-banner">
+  <h1>Welcome to ShopNest</h1>
+  <p>Discover the best products at unbeatable prices.</p>
+</div>
 
       {!loading && categories.length > 0 && (
         <div className="category-filters">

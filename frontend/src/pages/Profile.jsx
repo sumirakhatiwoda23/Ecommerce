@@ -22,7 +22,6 @@ const Profile = () => {
         if (res.ok) {
           setOrders(Array.isArray(data) ? data : []);
         } else {
-          // Token obsolete or 401: clear and bounce
           if (res.status === 401) {
              logout();
              navigate('/login');
@@ -36,7 +35,7 @@ const Profile = () => {
       }
     };
     fetchMyOrders();
-  }, [user, navigate]);
+  }, [user, navigate, logout]);
 
   const handleLogout = () => {
     logout();
@@ -71,20 +70,38 @@ const Profile = () => {
       ) : (
         <div style={{ display: 'grid', gap: '20px' }}>
           {orders.map(order => (
-            <div key={order._id} style={{ background: '#09090b', padding: '20px', borderRadius: '12px', border: '1px solid #27272a', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-              <div>
-                <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '5px' }}>Order ID: <span style={{ color: '#fff' }}>{order._id}</span></p>
-                <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '5px' }}>Placed On: <span style={{ color: '#fff' }}>{new Date(order.createdAt).toLocaleDateString()}</span></p>
-                <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>Total: <strong style={{ color: '#10b981' }}>₹{order.totalAmount.toFixed(2)}</strong></p>
+            <div key={order._id} style={{ background: '#09090b', padding: '20px', borderRadius: '12px', border: '1px solid #27272a' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px', borderBottom: '1px solid #27272a', paddingBottom: '15px', marginBottom: '15px' }}>
+                <div>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '5px' }}>Order ID: <span style={{ color: '#fff' }}>{order._id}</span></p>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '5px' }}>Placed On: <span style={{ color: '#fff' }}>{new Date(order.createdAt).toLocaleString()}</span></p>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>Total: <strong style={{ color: '#10b981' }}>₹{order.totalAmount.toFixed(2)}</strong></p>
+                </div>
+                <div>
+                  <span style={{ 
+                    background: order.status === 'Delivered' ? 'rgba(16,185,129,0.1)' : order.status === 'Shipped' ? 'rgba(59,130,246,0.1)' : 'rgba(245,158,11,0.1)', 
+                    color: order.status === 'Delivered' ? '#10b981' : order.status === 'Shipped' ? '#3b82f6' : '#f59e0b',
+                    padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold' 
+                  }}>
+                    {order.status}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span style={{ 
-                  background: order.status === 'Delivered' ? 'rgba(16,185,129,0.1)' : order.status === 'Shipped' ? 'rgba(59,130,246,0.1)' : 'rgba(245,158,11,0.1)', 
-                  color: order.status === 'Delivered' ? '#10b981' : order.status === 'Shipped' ? '#3b82f6' : '#f59e0b',
-                  padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold' 
-                }}>
-                  {order.status}
-                </span>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {order.items.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <img
+                      src={item.imageUrl || '/placeholder.png'}
+                      alt={item.name || 'Product'}
+                      style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #27272a' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ color: '#fff', fontSize: '0.95rem' }}>{item.name || 'Product'}</p>
+                      <p style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Qty: {item.qty} × ₹{item.price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

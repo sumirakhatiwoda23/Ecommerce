@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 const AdminProducts = () => {
   const { user } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -17,12 +18,22 @@ const AdminProducts = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you strictly sure you want to delete this?')) {
-      const res = await fetch(`/api/products/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-      if (res.ok) {
-        setProducts(products.filter(p => p._id !== id));
+      setDeletingId(id);
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          setProducts(products.filter(p => p._id !== id));
+        } else {
+          alert('Could not delete product');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Something went wrong deleting the product');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -56,7 +67,9 @@ const AdminProducts = () => {
                 <td style={tdStyle}>{product.stock}</td>
                 <td style={tdStyle}>
                   <Link to={`/admin/edit-product/${product._id}`} style={editBtn}>Edit</Link>
-                  <button onClick={() => handleDelete(product._id)} style={deleteBtn}>Delete</button>
+                  <button onClick={() => handleDelete(product._id)} disabled={deletingId === product._id} style={deleteBtn}>
+                    {deletingId === product._id ? 'Deleting...' : 'Delete'}
+                  </button>
                 </td>
               </tr>
             ))}

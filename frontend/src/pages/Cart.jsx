@@ -19,6 +19,10 @@ const Cart = () => {
     }
   };
 
+  const handleProceedSingle = (item) => {
+    navigate('/checkout', { state: { items: [item] } });
+  };
+
   const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
 
   return (
@@ -40,7 +44,10 @@ const Cart = () => {
                     <span>{item.qty}</span>
                     <button onClick={() => handleUpdateQty(item, item.qty + 1)}>+</button>
                   </div>
-                  <button onClick={() => handleRemove(item.productId)} className="btn-remove">Remove</button>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                    <button onClick={() => handleProceedSingle(item)} className="btn btn-checkout">Proceed</button>
+                    <button onClick={() => handleRemove(item.productId)} className="btn-remove">Remove</button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -11,9 +11,11 @@ const VerifyEmail = () => {
   const [email, setEmail] = useState(location.state?.email || '');
   const [otp, setOtp] = useState('');
   const [resending, setResending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setVerifying(true);
     try {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
@@ -30,6 +32,9 @@ const VerifyEmail = () => {
       }
     } catch (error) {
       console.error(error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -59,9 +64,11 @@ const VerifyEmail = () => {
       <form onSubmit={handleSubmit} className="auth-form">
         <h2>Verify Your Email</h2>
         <p>Enter the 6-digit code sent to your email.</p>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="text" placeholder="Verification Code" value={otp} onChange={(e) => setOtp(e.target.value)} required maxLength={6} />
-        <button type="submit" className="btn">Verify</button>
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={verifying} />
+        <input type="text" placeholder="Verification Code" value={otp} onChange={(e) => setOtp(e.target.value)} required maxLength={6} disabled={verifying} />
+        <button type="submit" className="btn" disabled={verifying}>
+          {verifying ? 'Verifying...' : 'Verify'}
+        </button>
         <p>
           Didn't get a code?{' '}
           <button type="button" onClick={handleResend} disabled={resending} style={{ background: 'none', border: 'none', color: '#f97316', cursor: 'pointer', textDecoration: 'underline' }}>

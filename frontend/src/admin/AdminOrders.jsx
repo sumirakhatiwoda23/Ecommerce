@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 const AdminOrders = () => {
   const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -17,13 +18,23 @@ const AdminOrders = () => {
   }, [user]);
 
   const updateStatus = async (id, status) => {
-    const res = await fetch(`/api/orders/${id}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-      body: JSON.stringify({ status })
-    });
-    if (res.ok) {
-      setOrders(orders.map(order => order._id === id ? { ...order, status } : order));
+    setUpdatingId(id);
+    try {
+      const res = await fetch(`/api/orders/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        setOrders(orders.map(order => order._id === id ? { ...order, status } : order));
+      } else {
+        alert('Could not update order status');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Something went wrong updating the order');
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -35,6 +46,7 @@ const AdminOrders = () => {
           <thead>
             <tr style={rowStyle}>
               <th style={thStyle}>ORDER ID</th>
+              <th style={thStyle}>ITEMS</th>
               <th style={thStyle}>USER</th>
               <th style={thStyle}>TOTAL</th>
               <th style={thStyle}>PAYMENT</th>
@@ -43,32 +55,62 @@ const AdminOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
-              <tr key={order._id} style={rowStyle}>
-                <td style={tdStyle}>{order._id.substring(0, 8)}...</td>
-                <td style={tdStyle}>{order.userId?.name || 'Deleted User'}</td>
-                <td style={tdStyle}>MRP {order.totalAmount.toFixed(2)}</td>
-                <td style={tdStyle}>
-                  {order.paymentId ? (
-                    <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Paid</span>
-                  ) : (
-                    <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Unpaid</span>
-                  )}
-                </td>
-                <td style={tdStyle}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td style={tdStyle}>
-                  <select 
-                    value={order.status} 
-                    onChange={(e) => updateStatus(order._id, e.target.value)}
-                    style={{ background: '#09090b', color: '#fff', padding: '6px', border: '1px solid #27272a', borderRadius: '4px', outline: 'none' }}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
+            {orders.map(order => {
+              const isUpdating = updatingId === order._id;
+              return (
+                <tr key={order._id} style={rowStyle}>
+                  <td style={tdStyle}>{order._id.substring(0, 8)}...</td>
+                  <td style={tdStyle}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxWidth: '160px' }}>
+                      {order.items.map((item, idx) => (
+                        <img
+                          key={idx}
+                          src={item.imageUrl || '/placeholder.png'}
+                          alt={item.name || 'Product'}
+                          title={`${item.name || 'Product'} × ${item.qty}`}
+                          style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #27272a' }}
+                        />
+                      ))}
+                    </div>
+                  </td>
+                  <td style={tdStyle}>{order.userId?.name || 'Deleted User'}</td>
+                  <td style={tdStyle}>MRP {order.totalAmount.toFixed(2)}</td>
+                  <td style={tdStyle}>
+                    {order.paymentId ? (
+                      <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Paid</span>
+                    ) : (
+                      <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Unpaid</span>
+                    )}
+                  </td>
+                  <td style={tdStyle}>{new Date(order.createdAt).toLocaleString()}</td>
+                  <td style={tdStyle}>
+                    {isUpdating ? (
+                      <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Updating...</span>
+                    ) : (
+                      <>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', cursor: order.status === 'Delivered' ? 'default' : 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={order.status === 'Shipped' || order.status === 'Delivered'}
+                            disabled={order.status === 'Delivered'}
+                            onChange={(e) => e.target.checked && updateStatus(order._id, 'Shipped')}
+                          />
+                          Shipped
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={order.status === 'Delivered'}
+                            onChange={(e) => e.target.checked && updateStatus(order._id, 'Delivered')}
+                          />
+                          Delivered
+                        </label>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
