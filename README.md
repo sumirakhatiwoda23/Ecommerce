@@ -81,14 +81,48 @@ Ecommerce/
 │   ├── seed.js
 │   └── server.js
 └── frontend/
+    ├── public/
+    │   └── index.html
     └── src/
         ├── admin/
+        │   ├── AdminDashboard.jsx
+        │   ├── AddProduct.jsx
+        │   ├── AdminProducts.jsx
+        │   ├── EditProduct.jsx
+        │   ├── AdminOrders.jsx
+        │   └── AdminUsers.jsx
         ├── components/
+        │   ├── Navbar.jsx
+        │   ├── Footer.jsx
+        │   └── ReviewSection.jsx
         ├── context/
+        │   └── AuthContext.jsx
         ├── pages/
+        │   ├── Home.jsx
+        │   ├── Shop.jsx
+        │   ├── ProductDetail.jsx
+        │   ├── Cart.jsx
+        │   ├── Checkout.jsx
+        │   ├── Login.jsx
+        │   ├── Register.jsx
+        │   ├── VerifyEmail.jsx
+        │   ├── Profile.jsx
+        │   ├── OrderSuccess.jsx
+        │   ├── VerifyEsewa.jsx
+        │   ├── About.jsx
+        │   ├── Disclaimer.jsx
+        │   └── ReturnPolicy.jsx
         ├── redux/
-        └── styles/
+        │   ├── store.js
+        │   └── cartSlice.js
+        ├── styles/
+        │   ├── auth.css
+        │   └── product.css
+        ├── App.jsx
+        └── index.js
 ```
+
+> **Note:** this tree reflects the pages and components referenced across the project's routes and imports. A few files (`Home.jsx`, `Shop.jsx`, `Cart.jsx`, `Profile.jsx`, the `admin/` pages, `Navbar.jsx`, `Footer.jsx`, `redux/store.js`) are included based on what `App.jsx` imports and standard Create React App conventions, but weren't individually reviewed line-by-line — double check these match your actual filenames before relying on this as documentation.
 
 ## Getting Started
 
