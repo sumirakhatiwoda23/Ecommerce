@@ -8,9 +8,9 @@ const AdminProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/products?limit=1000');
       const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+      setProducts(Array.isArray(data.products) ? data.products : []);
     };
     fetchProducts();
   }, []);
