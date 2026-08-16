@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const VerifyEsewa = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const VerifyEsewa = () => {
         const decoded = JSON.parse(atob(encodedData));
         const { transaction_uuid, total_amount } = decoded;
 
-        const verifyRes = await fetch('/api/payment/esewa-verify', {
+        const verifyRes = await fetch(`${API_URL}/api/payment/esewa-verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ transaction_uuid, total_amount })

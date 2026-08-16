@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import '../styles/product.css';
+import { API_URL } from '../config/api';
 
 const PRODUCTS_PER_PAGE = 10;
 
@@ -28,7 +29,7 @@ const Shop = () => {
         if (activeCategory !== 'All') params.set('category', activeCategory);
         if (search.trim()) params.set('keyword', search.trim());
 
-        const res = await fetch(`/api/products?${params.toString()}`);
+        const res = await fetch(`${API_URL}/api/products?${params.toString()}`);
         const data = await res.json();
 
         setProducts(data.products || []);

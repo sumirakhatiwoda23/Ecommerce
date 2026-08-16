@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 
 const ReviewSection = ({ productId }) => {
   const { user } = useContext(AuthContext);
@@ -15,7 +16,7 @@ const ReviewSection = ({ productId }) => {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`/api/reviews/${productId}`);
+      const res = await fetch(`${API_URL}/api/reviews/${productId}`);
       const data = await res.json();
       setReviews(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -34,7 +35,7 @@ const ReviewSection = ({ productId }) => {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/reviews', {
+      const res = await fetch(`${API_URL}/api/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

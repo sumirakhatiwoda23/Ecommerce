@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { clearCart, removeFromCart } from '../redux/cartSlice';
+import { API_URL } from '../config/api';
 
 const Checkout = () => {
   const { user } = useContext(AuthContext);
@@ -24,7 +25,7 @@ const Checkout = () => {
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const orderRes = await fetch('/api/orders', {
+      const orderRes = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ const Checkout = () => {
 
       const createdOrder = await orderRes.json();
 
-      const initRes = await fetch('/api/payment/esewa-initiate', {
+      const initRes = await fetch(`${API_URL}/api/payment/esewa-initiate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

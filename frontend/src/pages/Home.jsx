@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import '../styles/product.css';
+import { API_URL } from '../config/api';
 
 const PRODUCTS_PER_CATEGORY = 4;
 
@@ -13,7 +14,7 @@ const Home = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const res = await fetch('/api/products?limit=1');
+        const res = await fetch(`${API_URL}/api/products?limit=1`);
         const data = await res.json();
         const cats = data.categories || [];
         setCategories(cats);
@@ -21,7 +22,7 @@ const Home = () => {
         const results = await Promise.all(
           cats.map(async (cat) => {
             const catRes = await fetch(
-              `/api/products?category=${encodeURIComponent(cat)}&limit=${PRODUCTS_PER_CATEGORY}`
+              `${API_URL}/api/products?category=${encodeURIComponent(cat)}&limit=${PRODUCTS_PER_CATEGORY}`
             );
             const catData = await catRes.json();
             return [cat, catData.products || []];
