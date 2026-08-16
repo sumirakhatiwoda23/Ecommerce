@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/initiate', protect, initiateEsewaPayment);
-router.post('/verify', verifyEsewaPayment);
+router.post('/esewa-initiate', protect, initiateEsewaPayment);
+router.post('/esewa-verify', verifyEsewaPayment);
 
 export default router;

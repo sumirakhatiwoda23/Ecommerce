@@ -8,29 +8,32 @@ const addOrderItems = async (req, res) => {
       return res.status(400).json({ message: 'No order items' });
     } else {
       const order = new Order({
-        userId: req.user._id,
-        items,
-        totalAmount,
-        address,
-        paymentId
+        userId: req.user._id, items, totalAmount, address, paymentId
       });
       const createdOrder = await order.save();
 
-      // Send Order Confirmation Email
-      const message = `
+      const customerMessage = `
         <h2>Order Confirmation</h2>
         <p>Hello ${req.user.name},</p>
         <p>Your order has been successfully placed! Order ID: <strong>${createdOrder._id}</strong></p>
-        <p>Total Amount Paid: $${totalAmount.toFixed(2)}</p>
+        <p>MRP: ${totalAmount.toFixed(2)}</p>
         <p>It will be shipped to: ${address.street}, ${address.city}</p>
         <p>Thank you for shopping with ShopNest!</p>
       `;
 
-      await sendEmail({
-        email: req.user.email,
-        subject: 'ShopNest - Order Confirmation',
-        message
-      });
+      await sendEmail({ email: req.user.email, subject: 'ShopNest - Order Confirmation', message: customerMessage });
+
+      if (process.env.ADMIN_EMAIL) {
+        const adminMessage = `
+          <h2>New Order Received</h2>
+          <p>Order ID: <strong>${createdOrder._id}</strong></p>
+          <p>Customer: ${req.user.name} (${req.user.email})</p>
+          <p>MRP: ${totalAmount.toFixed(2)}</p>
+          <p>Shipping to: ${address.street}, ${address.city}, ${address.country}</p>
+          <p>Log into the admin dashboard to view full details.</p>
+        `;
+        await sendEmail({ email: process.env.ADMIN_EMAIL, subject: `ShopNest - New Order (${createdOrder._id})`, message: adminMessage });
+      }
 
       res.status(201).json(createdOrder);
     }
