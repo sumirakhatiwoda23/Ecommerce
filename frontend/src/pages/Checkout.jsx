@@ -18,102 +18,78 @@ const Checkout = () => {
 
   const handlePayment = async () => {
     try {
-      const orderRes = await fetch('/api/payment/order', {
+      // 1. Create the order first (unpaid) so we have an orderId to pass to eSewa
+      const orderRes = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: totalPrice })
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`
+        },
+        body: JSON.stringify({
+          items: cartItems,
+          totalAmount: totalPrice,
+          address
+        })
       });
-      const orderData = await orderRes.json();
 
       if (!orderRes.ok) {
-        // Razorpay unconfigured exception handler
-        const fallback = window.confirm("Razorpay keys unconfigured on backend. Use Student Bypass Mode to place test order?");
-        if (fallback) {
-          return bypassPayment();
-        } else {
-          return alert("Payment failed to initialize");
-        }
+        alert('Could not create order');
+        return;
       }
 
-      const options = {
-        key: 'rzp_test_dummykey123', // Student dummy fallback
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: 'ShopNest',
-        description: 'Test Transaction',
-        order_id: orderData.id,
-        handler: async function (response) {
-          const verifyRes = await fetch('/api/payment/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(response)
-          });
-          if (verifyRes.ok) {
-            const saveOrderRes = await fetch('/api/orders', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
-              },
-              body: JSON.stringify({
-                items: cartItems,
-                totalAmount: totalPrice,
-                address,
-                paymentId: response.razorpay_payment_id
-              })
-            });
+      const createdOrder = await orderRes.json();
 
-            if (saveOrderRes.ok) {
-              dispatch(clearCart());
-              navigate('/ordersuccess');
-            } else {
-              alert('Order saving failed');
-            }
-          } else {
-            alert('Payment verification failed');
-          }
+      // 2. Ask backend to build the signed eSewa payment payload
+      const initRes = await fetch('/api/payment/esewa-initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`
         },
-        prefill: {
-          name: address.fullName,
-          email: user?.email,
-          contact: '9999999999'
-        },
-        theme: {
-          color: '#f97316'
-        }
-      };
-      
-      const rzp1 = new window.Razorpay(options);
-      rzp1.open();
+        body: JSON.stringify({
+          orderId: createdOrder._id,
+          amount: totalPrice
+        })
+      });
+
+      const initData = await initRes.json();
+
+      if (!initData.success) {
+        alert('Payment initialization failed: ' + initData.message);
+        return;
+      }
+
+      // 3. Clear cart now (order already saved) and redirect browser to eSewa
+      dispatch(clearCart());
+      submitToEsewa(initData.paymentData);
     } catch (error) {
       console.error(error);
+      alert('Something went wrong starting payment');
     }
   };
 
-  const bypassPayment = async () => {
-    const saveOrderRes = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`
-      },
-      body: JSON.stringify({
-        items: cartItems,
-        totalAmount: totalPrice,
-        address,
-        paymentId: 'bypass_txn_' + Date.now()
-      })
+  // Builds a hidden form and submits it, redirecting the browser to eSewa's payment page
+  const submitToEsewa = (paymentData) => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://rc.esewa.com.np/api/epay/main/v2/form'; // eSewa test/sandbox URL
+
+    Object.entries(paymentData).forEach(([key, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
     });
-    if (saveOrderRes.ok) {
-      dispatch(clearCart());
-      navigate('/ordersuccess');
-    }
+
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!user) {
-      alert("Please login first");
+      alert('Please login first');
       navigate('/login');
       return;
     }
@@ -132,8 +108,8 @@ const Checkout = () => {
           <input type="text" placeholder="Postal Code" required value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} />
           <input type="text" placeholder="Country" required value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} />
           <div className="checkout-summary">
-            <h4>Total to Pay: ₹{totalPrice.toFixed(2)}</h4>
-            <button type="submit" className="btn">Pay Now</button>
+            <h4>MRP {totalPrice.toFixed(2)}</h4>
+            <button type="submit" className="btn">Pay with eSewa</button>
           </div>
         </form>
       </div>

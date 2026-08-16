@@ -37,6 +37,7 @@ const AdminOrders = () => {
               <th style={thStyle}>ORDER ID</th>
               <th style={thStyle}>USER</th>
               <th style={thStyle}>TOTAL</th>
+              <th style={thStyle}>PAYMENT</th>
               <th style={thStyle}>DATE</th>
               <th style={thStyle}>STATUS</th>
             </tr>
@@ -46,7 +47,14 @@ const AdminOrders = () => {
               <tr key={order._id} style={rowStyle}>
                 <td style={tdStyle}>{order._id.substring(0, 8)}...</td>
                 <td style={tdStyle}>{order.userId?.name || 'Deleted User'}</td>
-                <td style={tdStyle}>₹{order.totalAmount.toFixed(2)}</td>
+                <td style={tdStyle}>MRP {order.totalAmount.toFixed(2)}</td>
+                <td style={tdStyle}>
+                  {order.paymentId ? (
+                    <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Paid</span>
+                  ) : (
+                    <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Unpaid</span>
+                  )}
+                </td>
                 <td style={tdStyle}>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td style={tdStyle}>
                   <select 

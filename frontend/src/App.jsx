@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import OrderSuccess from './pages/OrderSuccess';
+import VerifyEsewa from './pages/VerifyEsewa';
 import About from './pages/About';
 import Disclaimer from './pages/Disclaimer';
 import ReturnPolicy from './pages/ReturnPolicy';
@@ -20,6 +21,7 @@ import AdminProducts from './admin/AdminProducts';
 import EditProduct from './admin/EditProduct';
 import AdminOrders from './admin/AdminOrders';
 import AdminUsers from './admin/AdminUsers';
+import VerifyEmail from './pages/VerifyEmail';
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/ordersuccess" element={<OrderSuccess />} />
+          <Route path="/verify-esewa" element={<VerifyEsewa />} />
           <Route path="/about" element={<About />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/return" element={<ReturnPolicy />} />
@@ -45,6 +48,7 @@ function App() {
           <Route path="/admin/edit-product/:id" element={<EditProduct />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </div>
       <Footer />
